@@ -35,7 +35,7 @@ public:
 	//Here, i is 1-based index.
 	void perform_action(size_t i)
 	{
-		if (i <= commands.size())
+		if (i and i <= commands.size())
 			commands[i-1]->execute();
 	}
 
@@ -106,9 +106,7 @@ int main () {
 	show_menu();
 	scanf("%d", &menu_choice);
 	while (menu_choice != -1) {
-		if (menu_choice and menu_choice <= default_number_commands)
-			menu_list.perform_action(menu_choice);
-
+		menu_list.perform_action(menu_choice);
 		show_menu();
 		scanf("%d", &menu_choice);
 
