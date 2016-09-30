@@ -1,10 +1,12 @@
 #include <cstdio>
 #include <vector>
+#include <stack>
 
 //Command Interface
 class Command {
 public:
 	virtual void execute () = 0;
+	virtual void undo () = 0;
 	virtual ~Command () {}
 };
 
@@ -34,18 +36,42 @@ public:
 		commands.at(pos) = cmd;
 	}
 
+	void undo() {
+		if (command_stack.size()) {
+			Command * cmd = command_stack.top();
+			command_stack.pop();
+			cmd->undo();
+			undone_stack.push(cmd);
+		}
+	}
+
+	void redo() {
+		if (undone_stack.size()) {
+			Command * cmd = undone_stack.top();
+			undone_stack.pop();
+			command_stack.push(cmd);
+			cmd->execute();
+		}
+	}
+
 	//Action: Here, invoker calls Execute on Command objects.
 	//Here, i is 1-based index.
 	void perform_action(size_t i)
 	{
-		if (i and i <= commands.size())
+		if (i and i <= commands.size()) {
 			//Depending on what is the command, appropriate action is taken. Now, it is to upto Command object to perform the action. It can even defer the action or perform parallely or in other thread.
 			commands[i-1]->execute();
+			command_stack.push(commands[i-1]);
+			while(not undone_stack.empty())
+				undone_stack.pop();
+		}
 	}
 
 private:
 	//Invoker stores Command objects.
-	std::vector<Command*> commands;	
+	std::vector<Command*> commands;
+	std::stack<Command*> command_stack;
+	std::stack<Command*> undone_stack;
 };
 
 //Receiver
@@ -69,6 +95,25 @@ public:
 	void Delete () {
 		printf("Deleting Instances\n");
 	}
+
+	void UndoRun () {
+		printf("Undo Creation\n");
+	}
+	void UndoList () {
+		printf("Undo Show\n");
+	}
+	void UndoStop () {
+		printf("Undo Stop\n");
+	}
+
+	void UndoStart () {
+		printf("Undo Start\n");
+	}
+
+	void UndoDelete () {
+		printf("Undo Delete\n");
+	}
+
 };
 
 //Concrete Command classes
@@ -82,6 +127,10 @@ public:
 		instance_manager->List();
 	}
 
+	void undo() {
+		instance_manager->UndoList();
+	}
+
 private:
 	InstanceManager *instance_manager;
 };
@@ -92,6 +141,10 @@ public:
 	CreateInstances(InstanceManager * im): instance_manager(im){}
 	void execute() {
 		instance_manager->Run();
+	}
+	
+	void undo() {
+		instance_manager->UndoRun();
 	}
 
 private:
@@ -105,6 +158,10 @@ public:
 		instance_manager->Stop();
 	}
 
+	void undo() {
+		instance_manager->UndoStop();
+	}
+
 private:
 	InstanceManager *instance_manager;
 };
@@ -116,6 +173,10 @@ public:
 		instance_manager->Start();
 	}
 
+	void undo() {
+		instance_manager->UndoStart();
+	}
+
 private:
 	InstanceManager *instance_manager;
 };
@@ -125,6 +186,10 @@ public:
 	DeleteInstances(InstanceManager * im): instance_manager(im){}
 	void execute() {
 		instance_manager->Delete();
+	}
+
+	void undo() {
+		instance_manager->UndoDelete();
 	}
 
 private:
@@ -148,6 +213,8 @@ void show_menu()
 	printf("3. Stop Instances\n");
 	printf("4. Start Instances\n");
 	printf("5. Delete Instances\n");
+	printf("6. Undo last\n");
+	printf("7. Redo last undo\n");
 	printf("-1. Exit\n");
 }
 
@@ -165,7 +232,13 @@ int main () {
 	scanf("%d", &menu_choice);
 	while (menu_choice != -1) {
 		//Invoker perform action as per menu's choice.
-		menu_list.perform_action(menu_choice);
+		if (menu_choice <= 5) {
+			menu_list.perform_action(menu_choice);
+		} else if (6 == menu_choice) {
+			menu_list.undo();
+		} else if (7 == menu_choice) {
+			menu_list.redo();
+		}
 
 		show_menu();
 		scanf("%d", &menu_choice);
