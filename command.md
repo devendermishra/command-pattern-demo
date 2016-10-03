@@ -3,8 +3,7 @@
 
 Command pattern is an object behavioral pattern.
 
-_Intent_
-
+####Intent
 "Encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requeusts".
 
 Verbatim of the intent is quoted from GoF book of Design Patterns.
@@ -107,7 +106,7 @@ Following issues need to be considered when implementing Command pattern:
 ##Example
 Example given here is inspired from menu-based application for managing resources (which is refered as instance here) on a cloud. This application presents a menu to perform different operations on instances. This is a demo application and it misses the real-world details. Those details can be handled by extending `Command` class with real-world implementation and off-course modifying `InstanceManager` class.
 
-It is accessible at [[https://github.com/devendermishra/command-pattern-demo]]. Please read `ReadMe.md` on how to use. Please see and give your feedback on it.
+It is accessible at https://github.com/devendermishra/command-pattern-demo. Please read `ReadMe.md` on how to use. Please see and give your feedback on it. This repo also contains StarUML files for design and sequence.
 
 In this application, command pattern tries to solve the following problem:
 
